@@ -1,1 +1,1 @@
-
+"Chicago_Food_Inspection" uses elastic search to query the chicago food inspection data set using NoSQL database engine ElasticSearch for indiexing and data retrieval. Use heatmap to plot the geolocations of the facilities that failed Chicago food inspections.
