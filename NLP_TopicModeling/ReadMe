@@ -1,0 +1,5 @@
+This project was used to create a taxonomy of job titles related to "data scientist" and to determine potential equivalent classes,
+similar titles and sub-domains. The results indicated four titles including data scientist, data analyst, data engineer, and
+machine learning engineer. ML engineer was clearly the most distinct category. While data engineer was the most fragmented between 
+other classes. Analyst, was also fairly distinguishable although the Data Scientist title indicated similarity with analyst and 
+machine learning. It also appears that big data is also somewhat distinguishable from other analyst roles. 
