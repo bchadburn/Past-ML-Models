@@ -3,3 +3,11 @@ similar titles and sub-domains. The results indicated four titles including data
 machine learning engineer. ML engineer was clearly the most distinct category. While data engineer was the most fragmented between 
 other classes. Analyst, was also fairly distinguishable although the Data Scientist title indicated similarity with analyst and 
 machine learning. It also appears that big data is also somewhat distinguishable from other analyst roles. 
+
+Files
+1. indeed_webscrapping provides the python code for scrapping indeed using beautiful soup without access to the API. API access could be
+simpler for querying titles but requires approval.
+2. jobopenings.json provides around 1,000 job openings scrapped from indeed with the titles mentioned previously. 
+3. indeed_doc_classification.ipynb. Provides the NLP model code including TF-IDF, Doc2Vec, NMF, LDA and topic visualizations. TF-IDF 
+worked well for this task, although both NMF and LDA also provided useful insight.
+
