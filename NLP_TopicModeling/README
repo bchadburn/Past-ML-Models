@@ -98,10 +98,10 @@ don’t see that. Instead, when we use pyLDAvis to plot the clusters with word f
 identified job titles.
 
 Conclusion
-This method provides a good approach for identifying related job titles and identifying titles that can be considered distinct titles. 
-However, it is limited in its ability to provide a fully outlined ontology of how the terms are related or fully vetting equivalent 
-classes. There also is no one size fits all approach as some-times bi-grams may work better and for another unigrams or even trigrams. 
-It also seems NMF may work better than LDA, so there are several decisions that will need to be made by the analyst’s judgement.
+This method provides a potentially useful approach for building out an ontology of job titles. However, it is limited in its ability 
+to provide a fully outlined ontology of how the terms are related or fully vetting equivalent classes. There also is no one size 
+fits all approach as some-times bi-grams may work better and for another unigrams or even trigrams. It also seems NMF may work 
+better than LDA, so there are several decisions that must be left to the analyst’s judgement.
 
 In our current application of evaluating ‘data science’ related roles, machine learning was found to be the most distinct job title
 which was an unexpected finding. K-means also seemed to provide useful insight into some of the cross over between data scientist vs
