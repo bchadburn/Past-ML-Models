@@ -12,7 +12,8 @@ simpler for querying titles but requires approval.
 3. indeed_doc_classification.ipynb. Provides the NLP model code including TF-IDF, Doc2Vec, NMF, LDA and topic visualizations. TF-IDF 
 worked well for this task, although both NMF and LDA also provided useful insight.
 
-Full Description
+
+For a more formal and complete description see below
 
 Executive Summary
 The objective of this project was to begin to create a taxonomy of job titles including an investigation in potentially synonymous or 
@@ -31,7 +32,9 @@ relationships between job titles.
 Latent Dirichlet Allocation (LDA) was  conducted to create a probabilistic model for topic modeling. Grid search was used for 
 parameter tuning which included evaluating different number of topics by log likelihood scores to determine the best fit for the 
 LDA model. Using k-means, T-SNE, LDA, and PCA, it became clear that the topics were most clearly delineated by two distinct clusters 
-one primarily related to data analyst type skills and terms and another for machine learning terms.  Literature Review
+one primarily related to data analyst type skills and terms and another for machine learning terms.  
+
+Literature Review
 TF-IDF and word embeddings techniques have been used for a variety of natural language processing models and have been effective 
 approaches for classifying documents, sentiment analysis, and evaluating document meaning. In Deep Learning for NLP, Brownlee 
 introduces simple implementations of both approaches which were used as templates in my code1. Brownlee also provides examples of 
@@ -46,11 +49,13 @@ provide the python code, he dives into the math behind the algorithms and the di
 computing cluster distances(6). Finally, for Latent Dirichlet Allocation I found a very thorough review of applying LDA as well as an 
 example for using pyLDAvis package(7). 
 
-MethodsTo start the process of creating a taxonomy of job titles, currently known job titles were searched to identify common key 
+Methods
+To start the process of creating a taxonomy of job titles, currently known job titles were searched to identify common key 
 words used in postings. These key words were then used to conduct new searches to identify related job titles. The process was then 
 reiterated with the new job titles to create a larger corpus of job postings. Four major job titles were identified from the corpus 
 including data scientist, data engineer, machine learning and data analyst. The titles were standardized using these four titles, 
 although titles without any of these sets of titles were assigned as ‘other’. 
+
 Three vector matrices were created using tf-idf and word embeddings to compare performance between the three approaches. K-means 
 clustering was used with different sized clusters to determine the optimal number of clusters for separating the job openings. 
 For each cluster, a list of example documents as well as the terms was also provided in order to review the type of words common 
@@ -91,17 +96,26 @@ don’t see that. Instead, when we use pyLDAvis to plot the clusters with word f
 identified job titles.
 
 Conclusion
-This method provides a good approach for identifying related job titles and identifying titles that can be considered distinct titles. However, it is limited in its ability to provide a fully outlined ontology of how the terms are related or fully vetting equivalent classes. There also is no one size fits all approach as some-times bi-grams may work better and for another unigrams or even trigrams. It also seems NMF may work better than LDA, so there are several decisions that will need to be made by the analyst’s judgement.
-In our current application of evaluating ‘data science’ related roles, machine learning was found to be the most distinct job title which was an unexpected finding. K-means also seemed to provide useful insight into some of the cross over between data scientist vs analyst as the fragmented nature of a data engineer title which seems to entail a large amount of skills used in the data science and analyst roles. Overall, I found LDA and NMF were also insightful for connecting clusters with words and pyLDAvis for plotting and reviewing topics. More work could be conducted to further delve into the NMF clusters to determine how well it separated three clusters (as it seemed to also be detecting ‘big data’ openings) and what titles they were associated with. It might also help to incorporate pay ranges to assist with topic modeling which may also include evaluating junior vs senior level positions. I was also disappointed by doc2vec’s performance and would like to look at other options such as BERT or LSTM models to compare performance. 
+This method provides a good approach for identifying related job titles and identifying titles that can be considered distinct titles. 
+However, it is limited in its ability to provide a fully outlined ontology of how the terms are related or fully vetting equivalent 
+classes. There also is no one size fits all approach as some-times bi-grams may work better and for another unigrams or even trigrams. 
+It also seems NMF may work better than LDA, so there are several decisions that will need to be made by the analyst’s judgement.
+
+In our current application of evaluating ‘data science’ related roles, machine learning was found to be the most distinct job title
+which was an unexpected finding. K-means also seemed to provide useful insight into some of the cross over between data scientist vs
+analyst as the fragmented nature of a data engineer title which seems to entail a large amount of skills used in the data science and 
+analyst roles. Overall, I found LDA and NMF were also insightful for connecting clusters with words and pyLDAvis for plotting and 
+reviewing topics. More work could be conducted to further delve into the NMF clusters to determine how well it separated three clusters 
+(as it seemed to also be detecting ‘big data’ openings) and what titles they were associated with. It might also help to incorporate 
+pay ranges to assist with topic modeling which may also include evaluating junior vs senior level positions. I was also disappointed 
+by doc2vec’s performance and would like to look at other options such as BERT or LSTM models to compare performance. 
 
 References
-
-1Brownlee, J. (2019). Deep Learning for Natural Language Processing: Develop Deep Learning Models for Natural Language in Python.
-2Delaney, J. (2017). Visualizing Word Vectors with t-SNE. Retrieved from https://www.kaggle.com/jeffd23/visualizing-word-vectors-with-t-sne.
-3W, Shaui. (2018, Dec 22). Topic Modeling and t-SNE Visualization. Retrieved from https://shuaiw.github.io/2016/12/22/topic-modeling-and-tsne-visualzation.html
-4Scikitlearn.org [2016]. Biclustering documents with the Spectral Co-clustering algorithm. Retrieved  from https://scikit-learn.org/0.18/auto_examples/bicluster/bicluster_newsgroups.html
-5stackoverflow.com [2017]. How to graph grid scores from GridSearchCV? Retrieved from
- https://stackoverflow.com/questions/37161563/how-to-graph-grid-scores-from-gridsearchcv
-6Izenman, A. (2008). Cluster Analysis. Modern Multivariate Statistical Techniques (pp. 407-462). DOI 10.1007/978-0-387-78189-1.
-7machinelearningplus.com [2018]. LDA in Python – How to grid search best topic models? https://www.machinelearningplus.com/nlp/topic-modeling-python-sklearn-examples/ 
+1 Brownlee, J. (2019). Deep Learning for Natural Language Processing: Develop Deep Learning Models for Natural Language in Python.
+2 Delaney, J. (2017). Visualizing Word Vectors with t-SNE. Retrieved from https://www.kaggle.com/jeffd23/visualizing-word-vectors-with-t-sne.
+3 W, Shaui. (2018, Dec 22). Topic Modeling and t-SNE Visualization. Retrieved from https://shuaiw.github.io/2016/12/22/topic-modeling-and-tsne-visualzation.html
+4 Scikitlearn.org [2016]. Biclustering documents with the Spectral Co-clustering algorithm. Retrieved  from https://scikit-learn.org/0.18/auto_examples/bicluster/bicluster_newsgroups.html
+5 stackoverflow.com [2017]. How to graph grid scores from GridSearchCV? Retrieved from https://stackoverflow.com/questions/37161563/how-to-graph-grid-scores-from-gridsearchcv
+6 Izenman, A. (2008). Cluster Analysis. Modern Multivariate Statistical Techniques (pp. 407-462). DOI 10.1007/978-0-387-78189-1.
+7 machinelearningplus.com [2018]. LDA in Python – How to grid search best topic models? https://www.machinelearningplus.com/nlp/topic-modeling-python-sklearn-examples/ 
 
