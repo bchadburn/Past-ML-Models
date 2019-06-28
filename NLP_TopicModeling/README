@@ -1,20 +1,20 @@
-#Summary
+Summary
 This project was used to create a taxonomy of job titles related to "data scientist" and to determine potential equivalent classes,
 similar titles and sub-domains. The results indicated four titles including data scientist, data analyst, data engineer, and
 machine learning engineer. ML engineer was clearly the most distinct category. While data engineer was the most fragmented between 
 other classes. Analyst, was also fairly distinguishable although the Data Scientist title indicated similarity with analyst and 
 machine learning. It also appears that big data is also somewhat distinguishable from other analyst roles. 
 
-#Files
+Files
 1. indeed_webscrapping provides the python code for scrapping indeed using beautiful soup without access to the API. API access could be
 simpler for querying titles but requires approval.
 2. jobopenings.json provides around 1,000 job openings scrapped from indeed with the titles mentioned previously. 
 3. indeed_doc_classification.ipynb. Provides the NLP model code including TF-IDF, Doc2Vec, NMF, LDA and topic visualizations. TF-IDF 
 worked well for this task, although both NMF and LDA also provided useful insight.
 
-#Full Description
+Full Description
 
-##Executive Summary
+Executive Summary
 The objective of this project was to begin to create a taxonomy of job titles including an investigation in potentially synonymous or 
 closely related labels. Initially a search was conducted to extract the most common terms for a given job title. TF-IDF was used to 
 identify useful bi-grams and tr-grams that were then used for locating a longer list of related job titles. The process was then 
@@ -66,7 +66,7 @@ used for parameter tuning which includes evaluating different number of topics b
 for the LDA model. The package pyLDAavis was also used to visualize the clusters along with the relevance and frequency of terms 
 for each. 
 
-##Results
+Results
 As previously seen, the four most common job titles were analyst, data engineer, data scientist, and machine learning engineer. 
 TFIDF provides better insight into the differences or nature of relationships between data science related job titles than neural 
 network embeddings. We can see there is a lot of overlap between the identified jobs. However, the most distinct categories are 
@@ -90,11 +90,11 @@ don’t see that. Instead, when we use pyLDAvis to plot the clusters with word f
 (see figure 8) and when using four clusters, cluster 3 and 4, don’t seem very interpretable and have little to do with our previously 
 identified job titles.
 
-##Conclusion
+Conclusion
 This method provides a good approach for identifying related job titles and identifying titles that can be considered distinct titles. However, it is limited in its ability to provide a fully outlined ontology of how the terms are related or fully vetting equivalent classes. There also is no one size fits all approach as some-times bi-grams may work better and for another unigrams or even trigrams. It also seems NMF may work better than LDA, so there are several decisions that will need to be made by the analyst’s judgement.
 In our current application of evaluating ‘data science’ related roles, machine learning was found to be the most distinct job title which was an unexpected finding. K-means also seemed to provide useful insight into some of the cross over between data scientist vs analyst as the fragmented nature of a data engineer title which seems to entail a large amount of skills used in the data science and analyst roles. Overall, I found LDA and NMF were also insightful for connecting clusters with words and pyLDAvis for plotting and reviewing topics. More work could be conducted to further delve into the NMF clusters to determine how well it separated three clusters (as it seemed to also be detecting ‘big data’ openings) and what titles they were associated with. It might also help to incorporate pay ranges to assist with topic modeling which may also include evaluating junior vs senior level positions. I was also disappointed by doc2vec’s performance and would like to look at other options such as BERT or LSTM models to compare performance. 
 
-##References
+References
 
 1Brownlee, J. (2019). Deep Learning for Natural Language Processing: Develop Deep Learning Models for Natural Language in Python.
 2Delaney, J. (2017). Visualizing Word Vectors with t-SNE. Retrieved from https://www.kaggle.com/jeffd23/visualizing-word-vectors-with-t-sne.
