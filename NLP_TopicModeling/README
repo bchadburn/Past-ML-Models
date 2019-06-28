@@ -11,6 +11,8 @@ simpler for querying titles but requires approval.
 2. jobopenings.json provides around 1,000 job openings scrapped from indeed with the titles mentioned previously. 
 3. indeed_doc_classification.ipynb. Provides the NLP model code including TF-IDF, Doc2Vec, NMF, LDA and topic visualizations. TF-IDF 
 worked well for this task, although both NMF and LDA also provided useful insight.
+4. The pyLDAvis jpegs were provided as the final LDA cluster plot isn't displaying in Github. In notebooks the pyLDAvis provides an 
+interavtive plot allowing the user to click on each cluster and return the most relevant terms.
 
 
 For a more formal and complete description see below
