@@ -1,4 +1,4 @@
-The folder "Linear Regression includes several different type of linear regressions conducted in R programming. These include GLM, Logistic Regression, "Predicting House Prices" using GLM but with 80 variables to sort through, Regression with PCA transformation, and the model "poisson_negative_binomial_ZIP". Most of these are self-explanatory, the last one is for models trying to predict values where zero values are common and so Poisson, Negative Binomial, as well as a Zero Inflated Negative Binomial model to compary model performances.
+The folder "Linear Regression" includes several different type of linear regressions conducted in R programming. These include GLM, Logistic Regression, "Predicting House Prices" using GLM but with 80 variables to sort through, Regression with PCA transformation, and the model "poisson_negative_binomial_ZIP". Most of these are self-explanatory, the last one is for models trying to predict values where zero values are common and so Poisson, Negative Binomial, as well as a Zero Inflated Negative Binomial model to compary model performances.
 
 The folder "NLP_TopicModeling" is a project for creating a taxonomy of job titles (in this example we used "data scientist", but it could easily apply to any title) and to determine potential equivalent classes, similar titles and sub-domains. For more details, see the README in the project folder.
 
@@ -11,3 +11,4 @@ language models.
 
 The file "logistic classifier bank" (python) uses naive bayes and logistic regression classifiers and uses k-fold cross validation.
 
+The Folder "NLP Classification" was a project for predicting the job discipline (e.g. data scientist vs data engineer) using job titles and job descriptions from Indeed. This required using labelled data to train and test the model. It includes incorporating extensive skill categories information to provide greater insight into the model, using ensemble methods, and stacking. 
