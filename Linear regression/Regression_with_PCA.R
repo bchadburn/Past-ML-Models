@@ -1,5 +1,5 @@
 
-setwd("C:/Users/brench/Desktop/School/MSDS 410 Regression and Multivariate Analysis/Assignments/Assignments 6-8")
+setwd("C:/Desktop/School/MSDS 410 Regression and Multivariate Analysis/Assignments/Assignments 6-8")
 
 
 my.data <- read.csv(file="stock_portfolio.csv",head=TRUE,sep=",")
