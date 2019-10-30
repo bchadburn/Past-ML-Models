@@ -1,4 +1,4 @@
-######## Predict 411, Template Code for Unit 3
+######## Modified from Template Code from NU 411
 ######## Video of Overview:  https://youtu.be/ZUoyztUSjfI
 ######## Download appropriate packages and install them from (https://cran.r-project.org/web/packages/available_packages_by_name.html)
 
