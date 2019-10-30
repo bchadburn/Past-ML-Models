@@ -2,14 +2,11 @@
 ######## Video of Overview:  https://youtu.be/ZUoyztUSjfI
 ######## Download appropriate packages and install them from (https://cran.r-project.org/web/packages/available_packages_by_name.html)
 
-# This is generic code that creates a few simple models and does a few simple things with data preparation.
-# It is not intended to be a "best practices" or "good model"
-
 # Note that some of the Zero Inflated models will take a few seconds/moments to run.  Especially if you have a larger
 # number of variables involved in the model.
 
 #Read File in from your working directory
-setwd("C:/Users/Brench/Desktop/MSDS/Winter MSDS/411 MLR/Wine Sales")
+setwd("C:Desktop/MSDS/Winter MSDS/411 MLR/Wine Sales")
 wine = read.csv("WINE_Training.csv")  # read csv file
 
 #call libraries
