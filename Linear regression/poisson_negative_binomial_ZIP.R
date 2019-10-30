@@ -6,7 +6,7 @@
 # number of variables involved in the model.
 
 #Read File in from your working directory
-setwd("C:Desktop/MSDS/Winter MSDS/411 MLR/Wine Sales")
+setwd("C:/Desktop/MSDS/Winter MSDS/411 MLR/Wine Sales")
 wine = read.csv("WINE_Training.csv")  # read csv file
 
 #call libraries
