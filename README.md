@@ -11,4 +11,4 @@ language models.
 
 The file "logistic classifier bank" (python) uses naive bayes and logistic regression classifiers and uses k-fold cross validation.
 
-The Folder "NLP Classification" was a project for predicting the job discipline (e.g. data scientist vs data engineer) using job titles and job descriptions from Indeed. This required using labelled data to train and test the model. It includes incorporating extensive skill categories information to provide greater insight into the model, using ensemble methods, and stacking. 
+The folder "NLP Classification" was a project for predicting the job discipline (e.g. data scientist vs data engineer) using job titles and job descriptions from Indeed. This required using labelled data to train and test the model. It includes incorporating extensive skill categories information to provide greater insight into the model, using ensemble methods, and stacking. 
