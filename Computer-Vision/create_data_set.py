@@ -3,14 +3,17 @@ from pathlib import Path
 import shutil
 import os
 import json
+import argparse
 
-image_source = 'indoor_outdoor/images'
-image_dest = 'indoor_outdoor_images'
-indoor_scenes = {'Bedroom', 'Bathroom', 'Classroom', 'Office', 'Living Room', 'Dining Room', 'Room'}
-outdoor_scenes = {'Landscape', 'Skyscraper', 'Mountain', 'Beach', 'Ocean'}
+file_directory = 'indoor_outdoor'
+image_source = f'{file_directory}/images'
+indoor_scenes = ('Bedroom', 'Bathroom', 'Classroom', 'Office', 'Living Room', 'Dining Room', 'Room')
+outdoor_scenes = ('Landscape', 'Skyscraper', 'Mountain', 'Beach', 'Ocean')
+indoor_label = 0
+outdoor_label = 1
 
-vocab = pd.read_csv('indoor_outdoor/vocabulary.csv')
-f = open('indoor_outdoor/video_category_data.json')
+vocab = pd.read_csv(f'{file_directory}/vocabulary.csv')
+f = open(f'{file_directory}/video_category_data.json')
 image_labels = json.load(f)
 
 
@@ -31,8 +34,6 @@ def map_classes(metadata, indoor_classes, outdoor_classes):
 
 def map_parent_category(location_mappings):
     map_image_location = {}
-    indoor_label = 0
-    outdoor_label = 1
     for i in image_labels:
         if any(l in location_mappings['indoor'] for l in i['labels']):
             map_image_location[i['long_id']] = indoor_label
@@ -50,7 +51,7 @@ def move_images(orig_path, dest_path, image_dict):
             shutil.copy(file, final_path)
 
 
-def main():
+def main(image_dest):
     create_directory(image_dest)
     location_classes = map_classes(vocab, indoor_scenes, outdoor_scenes)
     image_locations = map_parent_category(location_classes)
@@ -58,4 +59,12 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--image_destination", type=str, default='indoor_outdoor_images')
+    args, _ = parser.parse_known_args()
+
+    if not os.path.exists(args.image_destination):
+        os.makedirs(args.image_destination)
+
+    main(args.image_destination)
+    print("Completed creating data set")

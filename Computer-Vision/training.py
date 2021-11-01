@@ -1,36 +1,33 @@
 import argparse
-# import glob
-# import matplotlib.pyplot as plt
-# import numpy as np
-import tarfile
-import tensorflow as tf
 import pandas as pd
 import numpy as np
-import PIL
-import PIL.Image
 import random
 from pathlib import Path
 from sklearn import metrics
 from sklearn import model_selection
 from tensorflow.keras import callbacks
-from tensorflow.keras import layers, Model, Sequential
 from tensorflow.keras import optimizers
-from tensorflow.keras.optimizers import schedules
-from tensorflow.keras.applications import resnet_v2
-from tensorflow.keras.layers.experimental import preprocessing
 import os
+from model import model
+from utils.utils import *
+from utils.process_image import _parse_image
+
 
 IMAGE_SIZE = 224
+MODEL_PATH = 'model_results'
+MODEL_CHECKPOINT_PATH = 'model_checkpoint'
 
-from utils.gpu_config import *
+if not os.path.exists(MODEL_PATH):
+    os.makedirs(MODEL_PATH)
 
-# # Check GPU is configured and compare GPU vs CPU time
-# print_system_info()
-# limit_memory(enable=True)
-# get_processor_time()
+if not os.path.exists(MODEL_CHECKPOINT_PATH):
+    os.makedirs(MODEL_CHECKPOINT_PATH)
 
 
-CLASSES = None
+# Check GPU is configured and compare GPU vs CPU compute time
+print_system_info()
+limit_memory(enable=True)
+get_processor_time()
 
 
 class Dataset:
@@ -48,6 +45,8 @@ class Dataset:
         self.validation_metadata = None
 
     def load(self, dataset_directory, classes=None):
+        """Creates training and validation dataset from directory of images. The prefix of the image name is used to
+        identify the class."""
         self.dataset_directory = dataset_directory
 
         tmp_classes = classes if classes else set([' '.join(i[0].split('-')) for i in os.listdir(dataset_directory)])
@@ -78,6 +77,8 @@ class Dataset:
                                                  repeat=False, metadata=True)
 
     def _load_images(self):
+        """Loads images and their respective classes. Calculated total images and class weights in case of
+        class imbalance."""
         image_filenames = []
         for classname in self.classes:
             for name in os.listdir(self.dataset_directory):
@@ -93,59 +94,31 @@ class Dataset:
         return image_filenames, image_targets
 
     def _dataset(self, image_filenames, image_targets, batch_size, repeat=False, metadata=False):
+        """Creates tf.data tensors of filenames, targets used for training. Sets up parallel processing
+        for image loading and parsing. Sets prefecth to load next batch in CPU, while GPU is in training."""
         image_filenames_dataset = tf.data.Dataset.from_tensor_slices(image_filenames)
 
         target_dataset = tf.data.Dataset.from_tensor_slices(image_targets)
-        image_dataset = image_filenames_dataset if metadata else image_filenames_dataset.map(self._parse_image,
+        image_dataset = image_filenames_dataset if metadata else image_filenames_dataset.map(lambda x: _parse_image(x, IMAGE_SIZE),
                                                                                              num_parallel_calls=tf.data.experimental.AUTOTUNE)
         dataset = tf.data.Dataset.zip((image_dataset, target_dataset))
 
+        # batch_size is 0 when creating dataset of the image filenames, otherwise a batch of images is created for training
         if batch_size > 0:
             dataset = dataset.batch(batch_size)
 
         if repeat:
             dataset = dataset.repeat()
 
+        # Prefetch data in CPU, while GPU is training
         dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
 
         return dataset
 
-    def _parse_image(self, filename):
-        image = tf.io.read_file(filename)
-        image = tf.image.decode_jpeg(image, channels=3)
-        image = tf.image.resize(image, [self.image_size, self.image_size])
-        return image
-
-
-def create_model(num_classes):
-    data_augmentation = Sequential([
-        preprocessing.RandomFlip("horizontal", input_shape=(IMAGE_SIZE, IMAGE_SIZE, 3), seed=42),
-        preprocessing.RandomRotation(factor=(-0.2, 0.2), seed=42),
-        preprocessing.RandomZoom(height_factor=(-0.2, 0.2), width_factor=(-0.2, 0.2), seed=42),
-        preprocessing.RandomTranslation(height_factor=(-0.1, 0.1), width_factor=(-0.1, 0.1), seed=42),
-    ])
-
-    base_model = resnet_v2.ResNet50V2(
-        weights='imagenet',
-        include_top=False
-    )
-
-    base_model.trainable = False
-
-    model_inputs = layers.Input(shape=(IMAGE_SIZE, IMAGE_SIZE, 3), name="image")
-    x = data_augmentation(model_inputs)
-    x = resnet_v2.preprocess_input(x)
-    x = base_model(x, training=False)
-    x = layers.Dense(128, activation='relu')(x)
-    x = layers.GlobalAveragePooling2D()(x)
-    x = layers.Dropout(0.5)(x)
-    model_outputs = layers.Dense(num_classes, activation='softmax')(x)
-    model = Model(name="classification", inputs=model_inputs, outputs=model_outputs)
-
-    return model
-
 
 def evaluate_model(session, model, dataset):
+    """Returns predictions on validation data set along with image names to review specific predictions. Prints
+    classification report, saves confusion matrix and predictions for each filename."""
     y_true = list(dict(dataset.validation_metadata.as_numpy_iterator()).values())
     validation_predictions = model.predict(dataset.validation_dataset)
     y_pred = np.argmax(validation_predictions, axis=1)
@@ -161,8 +134,9 @@ def evaluate_model(session, model, dataset):
         columns=dataset.classes,
         index=dataset.classes
     )
-    confusion_matrix.to_csv(os.path.join("/opt/ml/model", f"{session}-confusion-matrix.csv"))
+    confusion_matrix.to_csv(os.path.join(MODEL_PATH, f"{session}-confusion-matrix.csv"))
 
+    # Create list of image files to match to validation predictions during evaluation
     files = list(
         map(lambda s: s.decode().split("/")[-1], list(dict(dataset.validation_metadata.as_numpy_iterator()).keys())))
 
@@ -173,12 +147,13 @@ def evaluate_model(session, model, dataset):
         "confidence": np.max(validation_predictions, axis=1)
     })
 
-    predictions.to_csv(os.path.join("/opt/ml/model", f"{session}-predictions.csv"))
+    predictions.to_csv(os.path.join(MODEL_PATH, f"{session}-predictions.csv"))
 
     accuracy = metrics.accuracy_score(y_true, y_pred)
     print(f"Validation accuracy: {accuracy}")
 
 
+@time_it
 def fit_model(
         model,
         dataset,
@@ -187,7 +162,10 @@ def fit_model(
         fine_tuning_learning_rate,
         fine_tuning_epochs
 ):
-    checkpoint_filepath = "classification"
+    """Compiles and trains model with model checkpoint. Returns performance on entire validation set.
+     If fine-tuning epochs>0, if runs fine-tuning where all layers are unfrozen.
+     Finally, it loads best weights, and returns performance on validation set."""
+    checkpoint_filepath = f"{MODEL_CHECKPOINT_PATH}/cp.ckpt"
     os.makedirs(checkpoint_filepath, exist_ok=True)
 
     model.compile(
@@ -206,7 +184,7 @@ def fit_model(
         mode="min"
     )
 
-    history = model.fit(
+    model.fit(
         dataset.train_dataset,
         validation_data=dataset.validation_dataset,
         epochs=epochs,
@@ -243,7 +221,7 @@ def fit_model(
         mode="max"
     )
 
-    history = model.fit(
+    model.fit(
         dataset.train_dataset,
         validation_data=dataset.validation_dataset,
         epochs=fine_tuning_epochs,
@@ -263,21 +241,21 @@ def fit_model(
 
 
 if __name__ == "__main__":
+    """Builds dataset from image files, creates and fits model and saves model weights."""
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", type=str, default='indoor_outdoor_images')
 
-    parser.add_argument("--learning_rate", type=float, default=1e-3,
+    parser.add_argument("--learning_rate", type=float, default=1e-4,
                         help="The learning rate that will be used to train the classification model."
                         )
 
-    parser.add_argument('--epochs', type=int, default=30,
+    parser.add_argument('--epochs', type=int, default=15,
                         help=(
-                                "The number of epochs that will be used to train the classification model. If zero is specified, the model will be created " +
-                                "from a previously set of trained weights."
+                                "The number of epochs that will be used to train the initial classification model."
                         )
                         )
 
-    parser.add_argument("--fine_tuning_learning_rate", type=float, default=1e-4,
+    parser.add_argument("--fine_tuning_learning_rate", type=float, default=1e-5,
                         help="The learning rate that will be used to fine tune the classification model."
                         )
 
@@ -288,49 +266,25 @@ if __name__ == "__main__":
                         )
                         )
 
-    parser.add_argument("--evaluation", type=int, default=1,
-                        help=(
-                            "If in evaluation mode. If so, we evaluate the validation after fine-tuning"
-                            "and don't save a copy of the model. If not, we save a copy after training. "
-                        )
-                        )
-
     args, _ = parser.parse_known_args()
-
-    evaluation = args.evaluation == 1
-
-    if evaluation:
-        tf.random.set_seed(123)
-
 
     dataset = Dataset(batch_size=32, image_size=IMAGE_SIZE)
 
-    dataset.load(Path(dataset_path), classes=CLASSES)
+    dataset.load(Path(args.dataset), classes=None)
 
-    model = create_model(len(dataset.classes))
+    model = model.create_model(len(dataset.classes), IMAGE_SIZE)
 
     model = fit_model(
         model,
         dataset,
-        # args.learning_rate,
-        # args.epochs,
-        # args.fine_tuning_learning_rate,
-        # args.fine_tuning_epochs
-        learning_rate,
-        epochs,
-        fine_tuning_learning_rate,
-        fine_tuning_epochs
+        args.learning_rate,
+        args.epochs,
+        args.fine_tuning_learning_rate,
+        args.fine_tuning_epochs
     )
 
     model_id = random.randint(0, 1000)
-    model_filepath = os.path.join("model", str(model_id))
+    model_filepath = os.path.join(MODEL_PATH, 'fine_tuned_model')
     model.save(model_filepath)
 
     print("Model was successfully saved.")
-
-dataset_path = Path('indoor_outdoor_images')
-learning_rate = 1e-4
-fine_tuning_learning_rate = 1e-5
-fine_tuning_epochs = 15
-epochs = 20
-
