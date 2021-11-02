@@ -2,10 +2,30 @@ import tensorflow as tf
 import timeit
 import functools
 import time
+import os
+import argparse
+
+
+def dir_file(path):
+    if os.path.isfile(path):
+        return path
+    else:
+        raise argparse.ArgumentTypeError(f"image_name:{path} is not a valid path")
+
+
+def verify_create_paths(path):
+    if type(path) is list:
+        for i in path:
+            if not os.path.exists(i):
+                os.makedirs(i)
+    elif type(path) is str:
+        if not os.path.exists(path):
+            os.makedirs(path)
 
 
 def time_it(func):
     """Decorator for printing function runtime"""
+
     @functools.wraps(func)
     def wrapper_timer(*args, **kwargs):
         start_time = time.perf_counter()
@@ -14,6 +34,7 @@ def time_it(func):
         run_time = end_time - start_time
         print(f"Completed {func.__name__!r} in {run_time:.2f} secs")
         return result
+
     return wrapper_timer
 
 
@@ -85,3 +106,8 @@ def get_processor_time(devices=["GPU", "CPU"], runs=10):
 
     print("GPU speedup over CPU: %.0f%%" % round((cpu_exp_time / gpu_exp_time - 1) * 100, 2))
 
+
+def check_cpu_gpu():
+    print_system_info()
+    limit_memory(enable=True)
+    get_processor_time()
