@@ -4,7 +4,7 @@ from tensorflow.keras.layers.experimental import preprocessing
 
 
 def create_model(num_classes, image_size):
-    """Loads ResNet movel (v2) with imagenet weights. Includes data augmentation layers inside model for GPU support."""
+    """Loads ResNet model (v2) with imagenet weights. Includes data augmentation layers inside model for GPU support."""
     data_augmentation = Sequential([
         preprocessing.RandomFlip("horizontal", input_shape=(image_size, image_size, 3), seed=42),
         preprocessing.RandomRotation(factor=(-0.2, 0.2), seed=42),
