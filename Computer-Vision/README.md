@@ -72,7 +72,7 @@ Model Settings
 * IMAGE_SIZE: Image size required by model. Resnet uses 244.
 * MODEL_CHECKPOINT_PATH: Path for saving model checkpoints
 
-Note: Any changes to target classes will require changes to map_classes and map_parent_category under the [Creating data set section](#Important%20functions)
+Note: Any changes to target classes will require changes to map_classes and map_parent_category under the [Creating data set section](#Important%-functions)
 
 ### Creating data set
 Run python create_data_set.py from CLI. The default destination of images is
