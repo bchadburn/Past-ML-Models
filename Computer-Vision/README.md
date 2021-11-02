@@ -149,37 +149,24 @@ The script runs the following three tests:
 ### Model Improvements
 
 **Correcting Image Labels:** Initially 183 indoor and outdoor images were found and moved to the training folder. The images
-were reviewed to ensure labels were correctly assigned. 14 images were deleted as they were bad images (some blank, some were irrelevant). A few images 
+were reviewed to ensure labels were correctly assigned. 14 images were deleted (some blank, some were irrelevant). A few images 
 labelled as indoor were outdoor images and visa-versa, so the labels were changed accordingly. 
 
-**Model Performance:** After curation, the model's performance fluctuates between 95-100%. 
-Small model architecture and parameter tweaking were needed to improve from 94% to high 90s but otherwise, the model has high performance 
-even if the top layers are changed a bit. However,
-the results can vary a few percent between trainings. 
+**Model Performance:** After curation, the model's performance fluctuates between a 97% and 100% F1-Score on the validation set. 
 
-**Next Steps:** To further improve the solution, I probably would enquire about the business requirement for accuracy, reliability, and speed and whether more improvement is needed. Typically, a final test set would also need to be created from images
-we haven't seen and that properly reflect images the model would see in production.
+**Model Improvements:** Even with the model's high performance, some improvements could be made to optimum performance and to ensure the model generalizes well to unseen data. To improve the model furtherthere's several steps that could be taken.
 
-**Model Improvements:** Otherwise, to improve the model further I would focus on a 'data centric' approach. 
+1. Add more images to train, val, and create a separate test set. On option is to add other indoor/outdoor categories (similar to building, house etc) where images could be added or find other options to add more data. It's likely to have a more reliable model, more images and examples would be useful given the high variability between images and low validation count.
 
-1. Perform another round of curation and make sure no other bad images were missed. 
+2. Perform another round of curation and remove bad images.
 
-2. Identify the type of mistakes the model is making and how that differs
-between trainings. For that reason, predictions for each image were exported after training.
-   
-3. Add other indoor/outdoor categories (similar to building, house etc) where images could be added or find other options to add more data. 
-   It's likely to have a more reliable model, more images and examples would be useful given the high variability between images and low validation count.
-   
-4. Review data augmentations: With more time. I would be helpful to review different data augmentation methods and values. Given the 
-   variability in our images, more aggressive augmentation could be added.
+3. Retrain model, and evaluate on validation set. Identify the type of mistakes the model is making and how that differs
+between trainings. In the training.py script predictions for each image are exported after training.
+    
+4. Review data augmentations: It would be helpful to review different data augmentation methods and values. Given the 
+   variability in our images, more aggressive augmentation could be added. check_augmentation.py script can be used to manually review outcome of adding specific augmentation parameters.
 
-5. Hyper-parameter tuning, and fiddling with different architectures could also be useful, but I'd first start with 
-business requirements and understanding the current limitations of the existing model. 
-If model improvements are warranted, I'd probably use Keras Tuner to help efficiently explore the hyper-parameter search space for model parameters
-and augmentation and fine-tune parameters from there. Finally, stacked and/or ensemble methods could be used to try getting optimum performance.
 
 Speed: Given the low number of images, the model training takes place in under a minute. Since we are using gpu enabled tf, tf.data instead of slower methods like
 Keras generators, parallel processing for image processing and loading, prefetch images in CPU while GPU runs etc. 
-the model training is capable of training efficiently on a much larger dataset. Also, by default TF decodes to jpeg 
-using "Integer Fast" method. If "Integer Accurate" method is needed, decoding may be slightly slower but due to prefetch
-decrease in training time should be minimal.
+the model training is capable of training efficiently on a much larger dataset.
