@@ -23,14 +23,14 @@ completely blank and several are mislabelled. These curated images are provided 
 **2nd method**: Unzip and place folder "indoor_outdoor_images" in project directory and skip step: Creating Data Set.
 
 Along with the image related files, ensure you have the following scripts in project director.
-* create_data_set.py
-* training.py
-* image_processing_unit_test.py
-* single_image_predictions.py
-* Utils folder with preprocess_image.py and utils.py 
-* Model folder with model.py
 * requirements.txt file
 * environment.yml (for conda users)
+* utils folder with utils.py, preprocess_image.py, config.py
+* create_data_set.py
+* Model folder with model.py
+* training.py
+* single_image_predictions.py
+* load_images_unit_test.py
 
 ## Installation
 
@@ -50,7 +50,30 @@ The packages may fail to load if using installing from requirements.txt file as 
 Instead, use environment.yml file.
 - conda env create --name <env_name> --file=environment.yml
 - conda activate <env_name>
-    
+
+### Configuration of image folders, classes, and model
+config.py includes settings for destination directories, image, and model settings. No changes should be needed unless
+changing target classes or reorganizing image directories
+
+Image path settings
+* PARENT_DIRECTORY: Parent folder with image folder, video_category_data.json, and vocabulary.csv
+* IMAGE_DIRECTORY: change original image folder name
+* TRAINING_IMAGES_PATH: modify folder for training images. Can also be changed from CLI when running 
+  create_data_set.py and training.py
+  
+Class settings
+* indoor/outdoor_label: Sets labels for target classes
+* ALL_CLASSES: Set list of classes of target classes
+* PRED_CLASS_NAMES: Labels corresponding to prediction index (e.g. "indoor")
+* indoor/outdoor scenes lists related classes grouped as "indoor", "outdoor"
+
+Model Settings
+* MODEL_RESULTS_PATH: Path for confusion matrix and image predictions, parent folder for .pb model file
+* IMAGE_SIZE: Image size required by model. Resnet uses 244.
+* MODEL_CHECKPOINT_PATH: Path for saving model checkpoints
+
+Note: Any changes to target classes will require changes to map_classes and map_parent_category under the [Creating data set section](#Important functions])
+
 ### Creating data set
 Run python create_data_set.py from CLI. The default destination of images is
 "indoor_outdoor_images". 
@@ -59,23 +82,11 @@ To pass a different path run: python create_data_set.py --image_destination <pat
 If you pass a different path, you will need to pass the new image source path when running
 training.py (see [Training section](#Training) for details).
 
-As long as original images are in proper folder the script will move relevant images to new folder for training.
-
 #### Description: 
 Script uses video_category_data.json to map images to specific labels. It uses vocabulary.csv
 to then map the labels to 'class' names listed in the variables indoor_scenes and outdoor_scenes. 
 Relevant images are then moved to a new folder and are given a prefix to indicate whether the image should 
-be indoor or outdoor (i.e. "0-" to specify an indoor image, "1-" for outdoor).
-
-##### important variables
-Modify directories, classes, sub-classes (e.g. for indoor, images labeled as "Bedroom", "Bathroom" etc. are 
-all categorized as "indoor"), or class labels:
-* image_source = 'indoor_outdoor/images' 
-* image_dest = 'indoor_outdoor_images' 
-* indoor_scenes = ('Bedroom', 'Bathroom', 'Classroom', 'Office', 'Living Room', 'Dining Room', 'Room')
-* outdoor_scenes = ('Landscape', 'Skyscraper', 'Mountain', 'Beach', 'Ocean')
-* indoor_label = 0
-* outdoor_label = 1
+be indoor or outdoor (e.g. "0-" to specify an indoor image, "1-" for outdoor).
 
 ##### Important functions
 * map_classes: Maps Indoor, Outdoor to relevant 'class' labels. If other classes or wanted, 
@@ -87,7 +98,7 @@ all categorized as "indoor"), or class labels:
 Run python training.py
 
 The default source of training images is indoor_outdoor_images. To specify source run:
-python training.py --dataset <path_to_folder>
+python training.py --image_path <path_to_folder>
 Other optional parameters can be passed for model training including:
 - --epochs:  The number of epochs that will be used to train the initial classification model.
 - --learning_rate: The learning rate that will be used to train the model
@@ -117,19 +128,19 @@ through CPU and will try using GPU and compare test times. The results will be p
 If tensorflow-gpu is correctly configured, the GPU should be considerably faster, 
 although its dependent on GPU. Using NVIDIA GeForce RTX 2080 Super, the GPU speed over CPU is 600+% for this test.
 
-### Run Image Unit Test
-Run python image_processing_unit_test.py -i {image path}
+### Run _load_image unit test
+Run python load_images_unit_test.py 
+
+Note: Test script is meant to support being run automatically and doesn't take arguments. If the training images 
+aren't found in the default folder 'indoor_outdoor_images', the variable TRAINING_IMAGES_PATH needs to be changed in 
+config.py
 
 #### Description
-Script is meant to review output provided by tf.io.read_file and tf.image.decode_jpeg
-and compared output to PIl and CV2 image processing results. Image values are compared to identify differences, check if differences 
-are minor. I used this to check if tf image values are comparable and whether PIL and CV2 can also be used to process images
-for predictions. This is particularly helpful when serving a model and considering whether to use other options for loading images to make predictions. 
-
-Results: I found while PIL and CV2 image values were identical, there were minor differences with tf method for loading and decoding. Found out the default TF decode method 
-"INTEGER_FAST" speeds up processing but doesn't match other methods. Tried "INTEGER_ACCURATE" but found same results. Found out PIL doesn't provide integer accurate decompression. OpenCV on the other hand does 
-and before TF 2.0 the image values are identical if TF method "INTEGER_ACCURATE" is passed. However, I was not able to reproduce using tf 2.0 with either method.
-Verified image values were very similar. Even still, unit tests showed predictions differed widely when using the other processing methods.
+Tests result of _load_images function from training.py script. The function _load_images returns the filename and target class list.
+The script runs the following three tests:
+1. Number of filenames match number of target classes. 
+2. Image format includes prefix class + '-'  (e.g. '0-'), and the extension is .jpg
+3. Checks target classes are found in class list defined in config.py file
 
 ### Model Improvements
 
@@ -165,4 +176,6 @@ and augmentation and fine-tune parameters from there. Finally, stacked and/or en
 
 Speed: Given the low number of images, the model training takes place in under a minute. Since we are using gpu enabled tf, tf.data instead of slower methods like
 Keras generators, parallel processing for image processing and loading, prefetch images in CPU while GPU runs etc. 
-the model training is capable of training efficiently on a much larger dataset. 
+the model training is capable of training efficiently on a much larger dataset. Also, by default TF decodes to jpeg 
+using "Integer Fast" method. If "Integer Accurate" method is needed, decoding may be slightly slower but due to prefetch
+decrease in training time should be minimal.
