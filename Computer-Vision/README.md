@@ -51,8 +51,8 @@ Install the dependencies for the project using the requirements.txt
 **Installation for conda users:**
 
 The packages may fail to load if using installing from requirements.txt file as conda-forge may be required to download certain packages.
-Instead, use environment.yml file.
-- conda env create --name <env_name> --file=environment.yml
+Instead, use environment.yml file. To edit env name, change name: <env_name>
+- conda env create -f=environment.yml
 - conda activate <env_name>
 
 ### Configuration of image folders, classes, and model
