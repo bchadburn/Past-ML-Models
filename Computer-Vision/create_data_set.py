@@ -4,17 +4,9 @@ import shutil
 import os
 import json
 import argparse
+from utils.config import *
 
-file_directory = 'indoor_outdoor'
-image_source = f'{file_directory}/images'
-indoor_scenes = ('Bedroom', 'Bathroom', 'Classroom', 'Office', 'Living Room', 'Dining Room', 'Room')
-outdoor_scenes = ('Landscape', 'Skyscraper', 'Mountain', 'Beach', 'Ocean')
-indoor_label = 0
-outdoor_label = 1
-
-vocab = pd.read_csv(f'{file_directory}/vocabulary.csv')
-f = open(f'{file_directory}/video_category_data.json')
-image_labels = json.load(f)
+image_source = f'{PARENT_DIRECTORY}/{IMAGE_DIRECTORY}'
 
 
 def create_directory(file_path):
@@ -36,9 +28,9 @@ def map_parent_category(location_mappings):
     map_image_location = {}
     for i in image_labels:
         if any(l in location_mappings['indoor'] for l in i['labels']):
-            map_image_location[i['long_id']] = indoor_label
+            map_image_location[i['long_id']] = INDOOR_LABEL
         if any(l in location_mappings['outdoor'] for l in i['labels']):
-            map_image_location[i['long_id']] = outdoor_label
+            map_image_location[i['long_id']] = OUTDOOR_LABEL
     return map_image_location
 
 
@@ -53,18 +45,22 @@ def move_images(orig_path, dest_path, image_dict):
 
 def main(image_dest):
     create_directory(image_dest)
-    location_classes = map_classes(vocab, indoor_scenes, outdoor_scenes)
+    location_classes = map_classes(vocab, INDOOR_SCENES, OUTDOOR_SCENES)
     image_locations = map_parent_category(location_classes)
     move_images(image_source, image_dest, image_locations)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--image_destination", type=str, default='indoor_outdoor_images')
+    parser.add_argument("--image_destination", type=str, default=TRAINING_IMAGES_PATH)
     args, _ = parser.parse_known_args()
 
     if not os.path.exists(args.image_destination):
         os.makedirs(args.image_destination)
+
+    vocab = pd.read_csv(f'{PARENT_DIRECTORY}/vocabulary.csv')
+    f = open(f'{PARENT_DIRECTORY}/video_category_data.json')
+    image_labels = json.load(f)
 
     main(args.image_destination)
     print("Completed creating data set")
